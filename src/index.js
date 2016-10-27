@@ -49,15 +49,23 @@ export default function logRender({ components, imports }) {
         const startTime = new Date().getTime();
         const result = originalRender.apply(this, arguments);
         const count = updateCountRender(componentId);
-        console.groupCollapsed(`render: ${displayName} (${count}): ${+new Date() - startTime}ms`);
+        if (console.groupCollapsed) {
+          console.groupCollapsed(`render: ${displayName} (${count}): ${+new Date() - startTime}ms`);
+        } else {
+          console.log('------')
+          console.log(`render: ${displayName} (${count}): ${+new Date() - startTime}ms`);
+        }
         console.log('props', this.props);
         console.log('state', this.state);
         if (this._diff) {
           console.info('Props key changes:', this._diff.propChanges);
           console.info('State key changes:', this._diff.stateChanges);
         }
-        console.groupEnd();
-
+        if (console.groupCollapsed) {
+          console.groupEnd();
+        } else {
+          console.log('------')
+        }
         return result;
       }
       ReactClass.prototype.componentDidUpdate = function componentDidUpdate(prevProps, prevState) {
@@ -78,42 +86,42 @@ export default function logRender({ components, imports }) {
 //   } catch(err) {}
 //   return opts;
 // }
-// 
+//
 // const customSettings = getCustomSettings();
-// 
+//
 // const comparePropsAndState = (component, prevProps, prevState) => {
 //   const propChanges = [];
 //   const stateChanges = [];
-// 
+//
 //   for (let key in prevProps) {
 //     if (component.props[key] !== prevProps[key]) propChanges.push(key)
 //   }
-// 
+//
 //   for (let key in prevState) {
 //     if (component.state[key] !== prevState[key]) stateChanges.push(key)
 //   }
-// 
+//
 //   return { propChanges, stateChanges };
 // }
-// 
+//
 // export default function logRender({ components, imports }) {
 //   const options = imports[0];
 //   return function wrap(ReactClass, componentId) {
 //     const originalComponentDidMount = ReactClass.prototype.componentDidMount;
 //     const originalComponentDidUpdate = ReactClass.prototype.componentDidUpdate;
-// 
+//
 //     ReactClass.prototype.componentDidMount = function componentDidMount() {
 //       this.previousRenderTimeStamp = new Date();
 //       if (originalComponentDidMount) {
 //         return originalComponentDidMount.apply(this, arguments);
 //       }
 //     }
-// 
+//
 //     ReactClass.prototype.componentDidUpdate = function componentDidUpdate(prevProps, prevState) {
 //       const newRenderTimeStamp = new Date();
 //       const timeRenderDiff = newRenderTimeStamp - this.previousRenderTimeStamp;
 //       const threshold = customSettings[this.constructor.name] || 200
-// 
+//
 //       if(!customSettings.quiet_mode) {
 //         if (timeRenderDiff < threshold) {
 //           const diff = comparePropsAndState(this, prevProps, prevState);
@@ -124,14 +132,14 @@ export default function logRender({ components, imports }) {
 //           console.groupEnd();
 //         }
 //       }
-// 
+//
 //       this.previousRenderTimeStamp = newRenderTimeStamp;
-// 
+//
 //       if (originalComponentDidUpdate) {
 //         return originalComponentDidUpdate.apply(this, arguments);
 //       }
 //     }
-// 
+//
 //     return ReactClass;
 //   };
 // }
